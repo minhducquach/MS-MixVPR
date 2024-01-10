@@ -86,7 +86,6 @@ class VPRModel(pl.LightningModule):
 
         # MixVPR
         # x = self.backbone(x)
-        # # print("AFTER BACKBONE:", x.shape)
         # x = self.aggregator(x)
 
         return x
