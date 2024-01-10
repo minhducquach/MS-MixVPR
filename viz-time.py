@@ -14,8 +14,7 @@ import faiss
 from sys import getsizeof
 
 from main import VPRModel
-# from dataloaders import PittsburgDataset, MapillaryDataset, NordlandDataset, SPEDDataset
-from dataloaders import NordlandDataset
+from dataloaders import PittsburgDataset, MapillaryDataset, NordlandDataset, SPEDDataset
 
 class InferencePipeline:
     def __init__(self, model, dataset, feature_dim, batch_size=4, num_workers=4, device='cuda'):
