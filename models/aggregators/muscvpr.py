@@ -4,34 +4,6 @@ import torch.nn as nn
 
 import numpy as np
 
-# class InterpolateModule(nn.Module):
-#     def __init__(self, size=None, scale_factor=None, mode='nearest'):
-#         super(InterpolateModule, self).__init__()
-#         self.size = size
-#         self.scale_factor = scale_factor
-#         self.mode = mode
-
-#     def forward(self, x):
-#         return F.interpolate(x, size=self.size, scale_factor=self.scale_factor, mode=self.mode)
-
-# class FeatureReuse(nn.Module):
-#     def __init__(self, channel_size = 1024, kernel_size_1 = 40, kernel_size_2 = 20, rows=4):
-#         # pass
-#         super().__init__()
-#         self.channel_size = channel_size
-#         self.kernel_size_1 = kernel_size_1
-#         self.kernel_size_2 = kernel_size_2
-#         self.rows = rows
-#         self.layer_norm = nn.LayerNorm(kernel_size_1*kernel_size_1)
-#         self.upsample = InterpolateModule(size=(channel_size,kernel_size_2*kernel_size_2))
-
-
-#     def forward(self, x_pre, x):
-#         x_pre = self.layer_norm(x_pre)
-#         x_pre = self.upsample(x_pre.unsqueeze(1)).squeeze(1)
-#         x = torch.concat((x, x_pre), dim=1)
-#         return x
-
 class InterpolateModule(nn.Module):
     def __init__(self, size=None, scale_factor=None, mode='nearest'):
         super(InterpolateModule, self).__init__()
@@ -82,7 +54,7 @@ class MuscVPR(nn.Module):
                  in_h_1=20,
                  in_w_1=20,
                  in_channels=2048,
-                 out_channels=2048,
+                 out_channels=1024,
                  mix_depth=1,
                  mlp_ratio=1,
                  out_rows=4,
@@ -91,7 +63,6 @@ class MuscVPR(nn.Module):
 
         self.in_h = in_h # height of 3rd conv feature maps
         self.in_w = in_w # width of 3rd conv input feature maps
-        # self.in_channels = in_channels # depth of 3rd conv feature maps
 
         self.in_h_1 = in_h_1 # height of 4th conv feature maps
         self.in_w_1 = in_w_1 # width of 4th conv feature maps
@@ -105,7 +76,7 @@ class MuscVPR(nn.Module):
 
         hw_3rd = in_h*in_w
         hw_4th = in_h_1*in_w_1
-        print("TEST:", hw_3rd,hw_4th)
+                     
         # first FeatureMixer block
         self.mix = nn.Sequential(*[
             FeatureMixerLayer(in_dim=hw_3rd, mlp_ratio=mlp_ratio)
@@ -118,14 +89,11 @@ class MuscVPR(nn.Module):
             for _ in range(self.mix_depth)
         ])
 
-        # self.channel_proj = nn.Linear(in_channels, out_channels)
         self.channel_proj_1 = nn.Linear(in_channels, out_channels)
-        # self.row_proj = nn.Linear(hw, out_rows)
         self.row_proj_1 = nn.Linear(in_h_1 * in_w_1, out_rows)
-        
-        self.reuse = FeatureReuse()
+
         # FeatureReuse block
-        # self.reuse = FeatureReuse(channel_size=in_channels/2, feat_size_3rd=hw_3rd, feat_size_4th=hw_4th)
+        self.reuse = FeatureReuse()
 
 
     def forward(self, x_4th, x_3rd):
@@ -161,14 +129,12 @@ def main():
     x = torch.randn(40, 1024, 20, 20)
     x_pre = torch.randn(40, 512, 40, 40)
     agg = MuscVPR(
-        in_channels=512,
                  in_h=40,
                  in_w=40,
-                 in_channels_1=2048,
                  in_h_1=20,
                  in_w_1=20,
+                 in_channels=2048,
                  out_channels=1024,
-                #  out_channels_1=1024,
                  mix_depth=1,
                  mlp_ratio=1,
                  out_rows=4,
