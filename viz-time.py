@@ -221,7 +221,7 @@ def visualize(top_k_matches: np.ndarray,
         if dataset_name == 'nordland':
             DATASET_ROOT = '/root/MultiScale-MixVPR/datasets/Nordland/'
         else:
-            DATASET_ROOT = '/root/MultiScale-MixVPR/datasets/SPED/SPEDTEST/'
+            DATASET_ROOT = '/root/MultiScale-MixVPR/datasets/SPEDTEST/'
         num_ref = dataset.num_references
         ground_truth = dataset.ground_truth
     for query_index, pred in enumerate(top_k_matches):
